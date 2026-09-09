@@ -19,7 +19,7 @@ import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Groups
-import androidx.compose.material.icons.outlined.Logout
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.SmartToy
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -106,7 +106,7 @@ fun MoreScreen(
 
         SectionLabel("Session")
         Column(Modifier.padding(horizontal = 20.dp)) {
-            OverflowRow("Sign out", "Return to the portal", Icons.Outlined.Logout, onClick = onSignOut)
+            OverflowRow("Sign out", "Return to the portal", Icons.AutoMirrored.Outlined.Logout, onClick = onSignOut)
         }
     }
 }
