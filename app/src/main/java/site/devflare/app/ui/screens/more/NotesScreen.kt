@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.devflare.app.data.SampleCatalog
+import site.devflare.app.data.WorkspaceCatalog
 import site.devflare.app.ui.components.ChipTone
 import site.devflare.app.ui.components.EmptyState
 import site.devflare.app.ui.components.FilterRow
@@ -36,7 +36,7 @@ import site.devflare.app.ui.theme.TextSecondary
 @Composable
 fun NotesScreen(onBack: () -> Unit) {
     var filter by rememberSaveable { mutableStateOf("All notes") }
-    val notes = SampleCatalog.notes.filter { filter == "All notes" || it.pinned }
+    val notes = WorkspaceCatalog.notes.filter { filter == "All notes" || it.pinned }
 
     Column(
         Modifier
@@ -47,7 +47,7 @@ fun NotesScreen(onBack: () -> Unit) {
         ScreenHeader(
             eyebrow = "Library",
             title = "Notes",
-            subtitle = "Meeting recaps, runbooks, and brand constraints the studio actually uses.",
+            subtitle = "Meeting recaps, runbooks, and brand constraints.",
             trailing = { BackAction(onBack) },
         )
         FilterRow(listOf("All notes", "Pinned"), filter) { filter = it }
@@ -60,7 +60,14 @@ fun NotesScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (notes.isEmpty()) {
-                EmptyState("No pinned notes", "Pin a recap or runbook to keep it at the top of the library.")
+                EmptyState(
+                    if (WorkspaceCatalog.notes.isEmpty()) "No notes yet" else "No pinned notes",
+                    if (WorkspaceCatalog.notes.isEmpty()) {
+                        "Recaps and runbooks will live here."
+                    } else {
+                        "Pin a recap or runbook to keep it at the top of the library."
+                    },
+                )
             } else {
                 notes.forEach { note ->
                     HairlineCard {

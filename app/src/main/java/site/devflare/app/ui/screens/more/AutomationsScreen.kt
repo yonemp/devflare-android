@@ -22,8 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.devflare.app.data.SampleCatalog
+import site.devflare.app.data.WorkspaceCatalog
 import site.devflare.app.ui.components.ChipTone
+import site.devflare.app.ui.components.EmptyState
 import site.devflare.app.ui.components.HairlineCard
 import site.devflare.app.ui.components.MetaRow
 import site.devflare.app.ui.components.ScreenHeader
@@ -38,7 +39,7 @@ import site.devflare.app.ui.theme.White
 fun AutomationsScreen(onBack: () -> Unit) {
     val enabled = remember {
         mutableStateMapOf<String, Boolean>().apply {
-            SampleCatalog.automations.forEach { put(it.id, it.enabled) }
+            WorkspaceCatalog.automations.forEach { put(it.id, it.enabled) }
         }
     }
 
@@ -57,30 +58,37 @@ fun AutomationsScreen(onBack: () -> Unit) {
             trailing = { BackAction(onBack) },
         )
         Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SampleCatalog.automations.forEach { item ->
-                HairlineCard {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(item.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 15.sp, modifier = Modifier.weight(1f))
-                        Switch(
-                            checked = enabled[item.id] == true,
-                            onCheckedChange = { enabled[item.id] = it },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Black,
-                                checkedTrackColor = White,
-                                uncheckedThumbColor = TextSecondary,
-                                uncheckedTrackColor = Hairline,
-                                uncheckedBorderColor = Hairline,
-                            ),
-                        )
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Text(item.trigger, color = TextSecondary, fontSize = 13.sp)
-                    Spacer(Modifier.height(2.dp))
-                    Text(item.action, color = TextSecondary, fontSize = 13.sp)
-                    Spacer(Modifier.height(10.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        if (item.failed) StatusChip("Failed last run", ChipTone.Danger)
-                        MetaRow(listOf(item.owner, item.lastFired))
+            if (WorkspaceCatalog.automations.isEmpty()) {
+                EmptyState(
+                    title = "No automations yet",
+                    body = "Triggers you create will keep inbox, notes, and reports in sync.",
+                )
+            } else {
+                WorkspaceCatalog.automations.forEach { item ->
+                    HairlineCard {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(item.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 15.sp, modifier = Modifier.weight(1f))
+                            Switch(
+                                checked = enabled[item.id] == true,
+                                onCheckedChange = { enabled[item.id] = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Black,
+                                    checkedTrackColor = White,
+                                    uncheckedThumbColor = TextSecondary,
+                                    uncheckedTrackColor = Hairline,
+                                    uncheckedBorderColor = Hairline,
+                                ),
+                            )
+                        }
+                        Spacer(Modifier.height(4.dp))
+                        Text(item.trigger, color = TextSecondary, fontSize = 13.sp)
+                        Spacer(Modifier.height(2.dp))
+                        Text(item.action, color = TextSecondary, fontSize = 13.sp)
+                        Spacer(Modifier.height(10.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            if (item.failed) StatusChip("Failed last run", ChipTone.Danger)
+                            MetaRow(listOf(item.owner, item.lastFired))
+                        }
                     }
                 }
             }

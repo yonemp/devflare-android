@@ -18,8 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.devflare.app.data.SampleCatalog
+import site.devflare.app.data.WorkspaceCatalog
 import site.devflare.app.ui.components.ChipTone
+import site.devflare.app.ui.components.EmptyState
 import site.devflare.app.ui.components.HairlineCard
 import site.devflare.app.ui.components.MetaRow
 import site.devflare.app.ui.components.ScreenHeader
@@ -30,7 +31,7 @@ import site.devflare.app.ui.theme.TextSecondary
 
 @Composable
 fun MeetingsScreen(onBack: () -> Unit) {
-    val grouped = SampleCatalog.meetings.groupBy { it.day }
+    val grouped = WorkspaceCatalog.meetings.groupBy { it.day }
     Column(
         Modifier
             .fillMaxSize()
@@ -46,6 +47,12 @@ fun MeetingsScreen(onBack: () -> Unit) {
             trailing = { BackAction(onBack) },
         )
         Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (grouped.isEmpty()) {
+                EmptyState(
+                    title = "No meetings this week",
+                    body = "Upcoming reviews, standups, and workshops will appear here.",
+                )
+            }
             grouped.forEach { (day, meetings) ->
                 meetings.forEach { meeting ->
                     HairlineCard {

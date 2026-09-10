@@ -30,7 +30,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.devflare.app.data.SampleCatalog
+import site.devflare.app.data.WorkspaceCatalog
 import site.devflare.app.data.model.Session
 import site.devflare.app.data.model.SessionSource
 import site.devflare.app.ui.components.ChipTone
@@ -53,8 +53,10 @@ fun MoreScreen(
     onOpen: (Dest) -> Unit,
     onSignOut: () -> Unit,
 ) {
-    val used = SampleCatalog.creditsUsed
-    val total = SampleCatalog.creditsTotal
+    val used = WorkspaceCatalog.creditsUsed
+    val total = WorkspaceCatalog.creditsTotal
+    val creditPercent = if (total <= 0) 0 else ((used.toFloat() / total) * 100).toInt()
+    val creditMeta = if (total <= 0) listOf("No usage this cycle") else listOf("$used / $total", "this cycle")
 
     Column(
         modifier = Modifier
@@ -80,16 +82,16 @@ fun MoreScreen(
                         Text(session?.email ?: "workspace@devflare.site", color = TextSecondary, fontSize = 13.sp)
                     }
                     StatusChip(
-                        if (session?.source == SessionSource.REMOTE) "Auth.js" else "Demo",
+                        if (session?.source == SessionSource.REMOTE) "Auth.js" else "Offline",
                         if (session?.source == SessionSource.REMOTE) ChipTone.Good else ChipTone.Neutral,
                     )
                 }
                 Spacer(Modifier.height(16.dp))
                 Text("Credits used", color = TextTertiary, fontSize = 11.sp)
                 Spacer(Modifier.height(8.dp))
-                QuietProgress(((used.toFloat() / total) * 100).toInt())
+                QuietProgress(creditPercent)
                 Spacer(Modifier.height(6.dp))
-                MetaRow(listOf("$used / $total", "this cycle"))
+                MetaRow(creditMeta)
             }
         }
 
@@ -97,7 +99,7 @@ fun MoreScreen(
         Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             OverflowRow("People", "Clients and teammates", Icons.Outlined.Groups) { onOpen(Dest.People) }
             OverflowRow("Notes", "Recaps, runbooks, constraints", Icons.AutoMirrored.Outlined.Notes) { onOpen(Dest.Notes) }
-            OverflowRow("Agents", "Eight studio subagents", Icons.Outlined.SmartToy) { onOpen(Dest.Agents) }
+            OverflowRow("Agents", "Studio agents", Icons.Outlined.SmartToy) { onOpen(Dest.Agents) }
             OverflowRow("Reports", "Pipeline and throughput", Icons.Outlined.BarChart) { onOpen(Dest.Reports) }
             OverflowRow("Automations", "Triggers that keep the queue moving", Icons.Outlined.AutoAwesome) { onOpen(Dest.Automations) }
             OverflowRow("Meetings", "This week’s schedule", Icons.Outlined.CalendarMonth) { onOpen(Dest.Meetings) }

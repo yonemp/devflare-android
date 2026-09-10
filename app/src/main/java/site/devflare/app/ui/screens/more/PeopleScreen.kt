@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.devflare.app.data.SampleCatalog
+import site.devflare.app.data.WorkspaceCatalog
 import site.devflare.app.ui.components.ChipTone
 import site.devflare.app.ui.components.EmptyState
 import site.devflare.app.ui.components.FilterRow
@@ -38,7 +38,7 @@ import site.devflare.app.ui.theme.TextSecondary
 @Composable
 fun PeopleScreen(onBack: () -> Unit) {
     var filter by rememberSaveable { mutableStateOf("All") }
-    val people = SampleCatalog.people.filter {
+    val people = WorkspaceCatalog.people.filter {
         filter == "All" || it.status == filter
     }
 
@@ -64,7 +64,14 @@ fun PeopleScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (people.isEmpty()) {
-                EmptyState("No one in this state", "Nobody is marked $filter right now.")
+                EmptyState(
+                    if (WorkspaceCatalog.people.isEmpty()) "No people yet" else "No one in this state",
+                    if (WorkspaceCatalog.people.isEmpty()) {
+                        "Invite clients and teammates to fill the directory."
+                    } else {
+                        "Nobody is marked $filter right now."
+                    },
+                )
             } else {
                 people.forEach { person ->
                     HairlineCard {

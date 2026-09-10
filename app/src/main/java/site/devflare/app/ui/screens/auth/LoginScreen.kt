@@ -141,7 +141,7 @@ fun LoginScreen(
 
         Spacer(Modifier.height(22.dp))
         Text(
-            "Connects to Auth.js on www.devflare.site. If the network is unreachable, a local demo session unlocks the shell when the email contains @ and the password is 6+ characters.",
+            "Connects to Auth.js on www.devflare.site. If the network is unreachable, an offline session unlocks the shell when the email contains @ and the password is 6+ characters.",
             color = TextTertiary,
             fontSize = 12.sp,
             lineHeight = 17.sp,

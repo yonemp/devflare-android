@@ -18,8 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.devflare.app.data.SampleCatalog
+import site.devflare.app.data.WorkspaceCatalog
 import site.devflare.app.ui.components.ChipTone
+import site.devflare.app.ui.components.EmptyState
 import site.devflare.app.ui.components.HairlineCard
 import site.devflare.app.ui.components.MetaRow
 import site.devflare.app.ui.components.ScreenHeader
@@ -41,27 +42,34 @@ fun AgentsScreen(onBack: () -> Unit) {
         ScreenHeader(
             eyebrow = "Subagents",
             title = "Agents",
-            subtitle = "The eight DevFlare subagents. Desktop still owns the live AI workspace.",
+            subtitle = "Studio agents. Desktop still owns the live AI workspace.",
             trailing = { BackAction(onBack) },
         )
         Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SampleCatalog.agents.forEach { agent ->
-                HairlineCard {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(agent.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 16.sp, modifier = Modifier.weight(1f))
-                        StatusChip(
-                            agent.status,
-                            when (agent.status) {
-                                "Running" -> ChipTone.Good
-                                "Paused" -> ChipTone.Warn
-                                else -> ChipTone.Neutral
-                            },
-                        )
+            if (WorkspaceCatalog.agents.isEmpty()) {
+                EmptyState(
+                    title = "No agents yet",
+                    body = "Connect the desktop workspace to run studio agents here.",
+                )
+            } else {
+                WorkspaceCatalog.agents.forEach { agent ->
+                    HairlineCard {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(agent.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 16.sp, modifier = Modifier.weight(1f))
+                            StatusChip(
+                                agent.status,
+                                when (agent.status) {
+                                    "Running" -> ChipTone.Good
+                                    "Paused" -> ChipTone.Warn
+                                    else -> ChipTone.Neutral
+                                },
+                            )
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(agent.description, color = TextSecondary, fontSize = 13.sp)
+                        Spacer(Modifier.height(10.dp))
+                        MetaRow(listOf(agent.model, "${agent.runs} runs", agent.lastRun))
                     }
-                    Spacer(Modifier.height(6.dp))
-                    Text(agent.description, color = TextSecondary, fontSize = 13.sp)
-                    Spacer(Modifier.height(10.dp))
-                    MetaRow(listOf(agent.model, "${agent.runs} runs", agent.lastRun))
                 }
             }
         }

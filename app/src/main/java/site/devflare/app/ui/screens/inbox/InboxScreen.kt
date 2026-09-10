@@ -26,7 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.devflare.app.data.SampleCatalog
+import site.devflare.app.data.WorkspaceCatalog
 import site.devflare.app.data.model.InboxKind
 import site.devflare.app.ui.components.ChipTone
 import site.devflare.app.ui.components.EmptyState
@@ -44,7 +44,7 @@ import site.devflare.app.ui.theme.White
 @Composable
 fun InboxScreen() {
     var filter by rememberSaveable { mutableStateOf("All") }
-    val threads = SampleCatalog.inbox.filter { thread ->
+    val threads = WorkspaceCatalog.inbox.filter { thread ->
         when (filter) {
             "Unread" -> thread.unread
             "Client" -> thread.kind == InboxKind.Client
@@ -76,8 +76,12 @@ fun InboxScreen() {
         ) {
             if (threads.isEmpty()) {
                 EmptyState(
-                    title = "Nothing in this queue",
-                    body = "No threads match $filter. Clear the filter or wait for the next client ping.",
+                    title = if (WorkspaceCatalog.inbox.isEmpty()) "Inbox is empty" else "Nothing in this queue",
+                    body = if (WorkspaceCatalog.inbox.isEmpty()) {
+                        "Client threads, agent notices, and deal follow-ups will land here."
+                    } else {
+                        "No threads match $filter. Clear the filter or wait for the next client ping."
+                    },
                 )
             } else {
                 threads.forEach { thread ->

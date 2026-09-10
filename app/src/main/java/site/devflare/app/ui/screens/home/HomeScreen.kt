@@ -21,10 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.devflare.app.data.SampleCatalog
+import site.devflare.app.data.WorkspaceCatalog
 import site.devflare.app.data.model.Session
 import site.devflare.app.data.model.SessionSource
-import site.devflare.app.ui.components.ChipTone
+import site.devflare.app.ui.components.EmptyState
 import site.devflare.app.ui.components.HairlineCard
 import site.devflare.app.ui.components.InitialsAvatar
 import site.devflare.app.ui.components.MetaRow
@@ -51,9 +51,9 @@ fun HomeScreen(
         in 12..17 -> "Good afternoon"
         else -> "Good evening"
     }
-    val unread = SampleCatalog.inbox.count { it.unread }
-    val openTasks = SampleCatalog.tasks.count { it.column != site.devflare.app.data.model.TaskColumn.Done }
-    val live = SampleCatalog.projects.count { it.stage != site.devflare.app.data.model.ProjectStage.Live }
+    val unread = WorkspaceCatalog.inbox.count { it.unread }
+    val openTasks = WorkspaceCatalog.tasks.count { it.column != site.devflare.app.data.model.TaskColumn.Done }
+    val live = WorkspaceCatalog.projects.count { it.stage != site.devflare.app.data.model.ProjectStage.Live }
 
     Column(
         modifier = Modifier
@@ -86,48 +86,72 @@ fun HomeScreen(
 
         SectionLabel("Active projects")
         Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SampleCatalog.projects.take(4).forEach { project ->
-                HairlineCard(onClick = onOpenProjects) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(project.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 15.sp, modifier = Modifier.weight(1f))
-                        StatusChip(project.stage.name)
+            val projects = WorkspaceCatalog.projects.take(4)
+            if (projects.isEmpty()) {
+                EmptyState(
+                    title = "No projects yet",
+                    body = "Active studio work will show up here once a project is in flight.",
+                )
+            } else {
+                projects.forEach { project ->
+                    HairlineCard(onClick = onOpenProjects) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(project.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 15.sp, modifier = Modifier.weight(1f))
+                            StatusChip(project.stage.name)
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        MetaRow(listOf(project.client, project.owner, project.updated))
+                        Spacer(Modifier.height(12.dp))
+                        QuietProgress(project.progress)
                     }
-                    Spacer(Modifier.height(6.dp))
-                    MetaRow(listOf(project.client, project.owner, project.updated))
-                    Spacer(Modifier.height(12.dp))
-                    QuietProgress(project.progress)
                 }
             }
         }
 
         SectionLabel("This week")
         Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SampleCatalog.meetings.take(3).forEach { meeting ->
-                HairlineCard(onClick = onOpenMeetings) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("${meeting.day}  ${meeting.time}", color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-                        Spacer(Modifier.weight(1f))
-                        Text(meeting.duration, color = TextTertiary, fontSize = 12.sp)
+            val meetings = WorkspaceCatalog.meetings.take(3)
+            if (meetings.isEmpty()) {
+                EmptyState(
+                    title = "Nothing on the calendar",
+                    body = "Upcoming reviews and standups will appear here.",
+                )
+            } else {
+                meetings.forEach { meeting ->
+                    HairlineCard(onClick = onOpenMeetings) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("${meeting.day}  ${meeting.time}", color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                            Spacer(Modifier.weight(1f))
+                            Text(meeting.duration, color = TextTertiary, fontSize = 12.sp)
+                        }
+                        Spacer(Modifier.height(4.dp))
+                        Text(meeting.title, color = TextPrimary, fontSize = 15.sp)
+                        Spacer(Modifier.height(4.dp))
+                        MetaRow(listOf(meeting.with, meeting.where, meeting.type))
                     }
-                    Spacer(Modifier.height(4.dp))
-                    Text(meeting.title, color = TextPrimary, fontSize = 15.sp)
-                    Spacer(Modifier.height(4.dp))
-                    MetaRow(listOf(meeting.with, meeting.where, meeting.type))
                 }
             }
         }
 
         SectionLabel("Activity")
         Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            HairlineCard {
-                SampleCatalog.activity.forEachIndexed { index, item ->
-                    if (index > 0) Spacer(Modifier.height(12.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(item.actor, color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                            Text(item.action, color = TextSecondary, fontSize = 13.sp)
+            val activity = WorkspaceCatalog.activity
+            if (activity.isEmpty()) {
+                EmptyState(
+                    title = "No activity yet",
+                    body = "Comments, stage changes, and agent runs will land in this feed.",
+                )
+            } else {
+                HairlineCard {
+                    activity.forEachIndexed { index, item ->
+                        if (index > 0) Spacer(Modifier.height(12.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text(item.actor, color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                Text(item.action, color = TextSecondary, fontSize = 13.sp)
+                            }
+                            Text(item.time, color = TextTertiary, fontSize = 12.sp)
                         }
-                        Text(item.time, color = TextTertiary, fontSize = 12.sp)
                     }
                 }
             }

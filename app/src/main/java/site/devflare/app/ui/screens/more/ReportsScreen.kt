@@ -22,7 +22,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.devflare.app.data.SampleCatalog
+import site.devflare.app.data.WorkspaceCatalog
+import site.devflare.app.ui.components.EmptyState
 import site.devflare.app.ui.components.HairlineCard
 import site.devflare.app.ui.components.MetaRow
 import site.devflare.app.ui.components.ScreenHeader
@@ -35,7 +36,11 @@ import site.devflare.app.ui.theme.White
 
 @Composable
 fun ReportsScreen(onBack: () -> Unit) {
-    val max = SampleCatalog.pipeline.maxOf { it.value }.coerceAtLeast(1)
+    val metrics = WorkspaceCatalog.reportMetrics
+    val pipeline = WorkspaceCatalog.pipeline
+    val projects = WorkspaceCatalog.projects.take(6)
+    val max = pipeline.maxOfOrNull { it.value }?.coerceAtLeast(1) ?: 1
+    val empty = metrics.isEmpty() && pipeline.isEmpty() && projects.isEmpty()
     Column(
         Modifier
             .fillMaxSize()
@@ -47,57 +52,70 @@ fun ReportsScreen(onBack: () -> Unit) {
         ScreenHeader(
             eyebrow = "Pulse",
             title = "Reports",
-            subtitle = "Pipeline, throughput, and agent usage — sample metrics so the studio looks alive.",
+            subtitle = "Pipeline, throughput, and agent usage once work is in flight.",
             trailing = { BackAction(onBack) },
         )
-        Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SampleCatalog.reportMetrics.chunked(2).forEach { row ->
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    row.forEach { metric ->
-                        HairlineCard(modifier = Modifier.weight(1f)) {
-                            Text(metric.label, color = TextSecondary, fontSize = 12.sp)
-                            Spacer(Modifier.height(6.dp))
-                            Text(metric.value, color = TextPrimary, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-0.5).sp)
-                            Spacer(Modifier.height(4.dp))
-                            Text(metric.delta, color = TextSecondary, fontSize = 11.sp)
+        if (empty) {
+            Column(Modifier.padding(horizontal = 20.dp)) {
+                EmptyState(
+                    title = "No reports yet",
+                    body = "Pipeline value, closed tasks, and agent runs will show here after the first cycle.",
+                )
+            }
+        } else {
+            Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                metrics.chunked(2).forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        row.forEach { metric ->
+                            HairlineCard(modifier = Modifier.weight(1f)) {
+                                Text(metric.label, color = TextSecondary, fontSize = 12.sp)
+                                Spacer(Modifier.height(6.dp))
+                                Text(metric.value, color = TextPrimary, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-0.5).sp)
+                                Spacer(Modifier.height(4.dp))
+                                Text(metric.delta, color = TextSecondary, fontSize = 11.sp)
+                            }
                         }
                     }
                 }
             }
-        }
-        SectionLabel("Pipeline by stage")
-        HairlineCard(modifier = Modifier.padding(horizontal = 20.dp)) {
-            SampleCatalog.pipeline.forEachIndexed { index, slice ->
-                if (index > 0) Spacer(Modifier.height(14.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(slice.stage, color = TextPrimary, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                    Text("$${slice.value}k", color = TextSecondary, fontSize = 12.sp)
-                }
-                Spacer(Modifier.height(6.dp))
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(99.dp))
-                        .background(HairlineSoft),
-                ) {
-                    Box(
-                        Modifier
-                            .fillMaxWidth(slice.value / max.toFloat())
-                            .height(4.dp)
-                            .clip(RoundedCornerShape(99.dp))
-                            .background(White),
-                    )
+            if (pipeline.isNotEmpty()) {
+                SectionLabel("Pipeline by stage")
+                HairlineCard(modifier = Modifier.padding(horizontal = 20.dp)) {
+                    pipeline.forEachIndexed { index, slice ->
+                        if (index > 0) Spacer(Modifier.height(14.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(slice.stage, color = TextPrimary, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                            Text("$${slice.value}k", color = TextSecondary, fontSize = 12.sp)
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(4.dp)
+                                .clip(RoundedCornerShape(99.dp))
+                                .background(HairlineSoft),
+                        ) {
+                            Box(
+                                Modifier
+                                    .fillMaxWidth(slice.value / max.toFloat())
+                                    .height(4.dp)
+                                    .clip(RoundedCornerShape(99.dp))
+                                    .background(White),
+                            )
+                        }
+                    }
                 }
             }
-        }
-        SectionLabel("Value by project")
-        Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SampleCatalog.projects.take(6).forEach { project ->
-                HairlineCard {
-                    Text(project.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-                    Spacer(Modifier.height(4.dp))
-                    MetaRow(listOf(project.client, project.stage.name, "${project.progress}%"))
+            if (projects.isNotEmpty()) {
+                SectionLabel("Value by project")
+                Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    projects.forEach { project ->
+                        HairlineCard {
+                            Text(project.name, color = TextPrimary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                            Spacer(Modifier.height(4.dp))
+                            MetaRow(listOf(project.client, project.stage.name, "${project.progress}%"))
+                        }
+                    }
                 }
             }
         }

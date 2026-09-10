@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.devflare.app.data.SampleCatalog
+import site.devflare.app.data.WorkspaceCatalog
 import site.devflare.app.data.model.TaskColumn
 import site.devflare.app.data.model.TaskPriority
 import site.devflare.app.ui.components.ChipTone
@@ -41,7 +41,7 @@ import site.devflare.app.ui.theme.TextPrimary
 @Composable
 fun TasksScreen() {
     var filter by rememberSaveable { mutableStateOf("All") }
-    val tasks = SampleCatalog.tasks.filter { task ->
+    val tasks = WorkspaceCatalog.tasks.filter { task ->
         when (filter) {
             "Urgent" -> task.priority == TaskPriority.Urgent
             "High" -> task.priority == TaskPriority.High
@@ -77,8 +77,12 @@ fun TasksScreen() {
             if (tasks.isEmpty()) {
                 Column(Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
                     EmptyState(
-                        title = "No tasks at this priority",
-                        body = "The $filter lane is clear. Switch filters to see the rest of the board.",
+                        title = if (WorkspaceCatalog.tasks.isEmpty()) "No tasks yet" else "No tasks at this priority",
+                        body = if (WorkspaceCatalog.tasks.isEmpty()) {
+                            "Work you assign will show up on this board, grouped by stage."
+                        } else {
+                            "The $filter lane is clear. Switch filters to see the rest of the board."
+                        },
                     )
                 }
             } else {

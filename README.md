@@ -14,7 +14,7 @@ minSdk 26 · targetSdk 35
 - **Tasks** — board grouped by To do, In progress, Review, Done
 - **More** — overflow to People, Notes, Agents, Reports, Automations, Meetings, Projects, plus sign out
 
-Sample content matches the live desktop workspace (Lumen, Atlas, Harbor, Kindred, Veil Pay, Northwind).
+The workspace starts empty. Screens show empty states until live data is wired in.
 
 ## Auth
 
@@ -24,7 +24,7 @@ Sign-in calls Auth.js credentials:
 2. `POST /api/auth/callback/credentials`
 3. `GET /api/auth/session`
 
-Workspace credentials from the desktop portal work here. If the device cannot reach the site, a **local demo session** unlocks the shell when the email contains `@` and the password is at least 6 characters. Full NextAuth cookie persistence across app launches is a follow-up; the app stores name / email / source locally after a successful sign-in.
+Workspace credentials from the desktop portal work here. If the device cannot reach the site, an **offline session** unlocks the shell when the email contains `@` and the password is at least 6 characters. Full NextAuth cookie persistence across app launches is a follow-up; the app stores name / email / source locally after a successful sign-in.
 
 ## Open in Android Studio
 

@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import site.devflare.app.data.SampleCatalog
+import site.devflare.app.data.WorkspaceCatalog
 import site.devflare.app.data.model.ProjectStage
 import site.devflare.app.ui.components.EmptyState
 import site.devflare.app.ui.components.FilterRow
@@ -37,7 +37,7 @@ import site.devflare.app.ui.theme.TextPrimary
 @Composable
 fun ProjectsScreen(onBack: () -> Unit) {
     var filter by rememberSaveable { mutableStateOf("All") }
-    val projects = SampleCatalog.projects.filter {
+    val projects = WorkspaceCatalog.projects.filter {
         filter == "All" || it.stage.name == filter
     }
 
@@ -50,7 +50,7 @@ fun ProjectsScreen(onBack: () -> Unit) {
         ScreenHeader(
             eyebrow = "Pipeline",
             title = "Projects",
-            subtitle = "Studio board with the same clients as the desktop workspace.",
+            subtitle = "Discovery, build, review, and live work across the studio.",
             trailing = { BackAction(onBack) },
         )
         FilterRow(listOf("All") + ProjectStage.entries.map { it.name }, filter) { filter = it }
@@ -63,7 +63,14 @@ fun ProjectsScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (projects.isEmpty()) {
-                EmptyState("No projects in $filter", "Nothing is sitting in this stage right now.")
+                EmptyState(
+                    if (WorkspaceCatalog.projects.isEmpty()) "No projects yet" else "No projects in $filter",
+                    if (WorkspaceCatalog.projects.isEmpty()) {
+                        "New studio work will appear in this pipeline."
+                    } else {
+                        "Nothing is sitting in this stage right now."
+                    },
+                )
             } else {
                 projects.forEach { project ->
                     HairlineCard {
