@@ -3,7 +3,7 @@
 Native Android workspace for the DevFlare studio. Kotlin, Jetpack Compose, Material 3 dark-only. This is not a WebView of [devflare.site](https://www.devflare.site).
 
 Package: `site.devflare.app`  
-minSdk 26 · targetSdk 35
+minSdk 26 · targetSdk 35 · version **0.1.2**
 
 ## Screens
 
@@ -39,15 +39,33 @@ If you open the project outside this environment, create `local.properties` with
 sdk.dir=/absolute/path/to/Android/sdk
 ```
 
-## Build a debug APK
+## Build the sideload APK
+
+Release builds are **minified and resource-shrunk** with R8, then signed with the checked-in sideload keystore (see [keystore/README.md](keystore/README.md)).
 
 ```bash
 export ANDROID_HOME=/path/to/Android/sdk   # or rely on local.properties
-./gradlew assembleDebug
+./gradlew assembleRelease
 ```
 
-The Gradle output is `app/build/outputs/apk/debug/app-debug.apk`.  
-A copy is also written to **`releases/DevFlare.apk`**.
+Gradle writes:
+
+- `app/build/outputs/apk/release/app-release.apk`
+- **`releases/DevFlare.apk`** (copy, same bytes)
+
+Optional zip for browsers that mishandle `.apk`:
+
+```bash
+zip -j releases/DevFlare.zip releases/DevFlare.apk
+```
+
+Keystore (sideload / upload only — not for Play Store):
+
+| Field | Value |
+| --- | --- |
+| File | `keystore/devflare-upload.p12` |
+| Alias | `upload` |
+| Passwords | `devflare-sideload` |
 
 ## Install with adb
 
@@ -56,6 +74,17 @@ adb install -r releases/DevFlare.apk
 ```
 
 No Play Store listing is required.
+
+## Download
+
+GitHub release **v0.1.2** (R8 minified, ~1.2 MB):
+
+- https://github.com/yonemp/devflare-android/releases/download/v0.1.2/DevFlare.apk
+- https://github.com/yonemp/devflare-android/releases/download/v0.1.2/DevFlare.zip
+
+SHA-256 (`DevFlare.apk`): `0e5972fe861ada47e1d52285fcfe7e6f1e054dbe7e5e6ae5336121d7d7e1b421`
+
+If a browser stalls on the `.apk`, use the `.zip` and unpack `DevFlare.apk` on the device or computer. The repo must be **public** for those URLs to work without GitHub login.
 
 ## Project shape
 

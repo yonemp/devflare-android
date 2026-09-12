@@ -10,5 +10,6 @@
 .cxx
 *.apk
 !releases/*.apk
+!releases/*.zip
 agent-tools/
 .kotlin
